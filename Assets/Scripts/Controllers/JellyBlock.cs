@@ -1,93 +1,117 @@
 using System.Collections.Generic;
+using System.Linq;
 using Data;
 using DG.Tweening;
 using EssentialManagers.Packages.GridManager.Scripts;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Controllers
 {
     public class JellyBlock : MonoBehaviour
     {
-        [Header("Config")] [SerializeField] private float moveLimit = 3f;
+        [Header("References")] [SerializeField]
+        private CellController parentCell;
 
-        [Header("Debug")] private Camera _mainCamera;
-        private float _fixedY;
-        private float _fixedZ;
-        private float _startX;
-        private int _lastColumnIndex = -1;
-        GridManager _gridManager;
-        [SerializeField] private List<CellController> closestColumn = new();
-        List<CellController> _prevColumn = new();
+        [Header("Debug")] private GridManager _gridManager;
+        [SerializeField] private List<InnerPiece> innerPieces;
+
 
         void Start()
         {
+            if (parentCell != null)
+            {
+                GetComponent<MovePerformer>().enabled = false;
+                parentCell.SetOccupied(this);
+            }
+
             _gridManager = GridManager.instance;
-            _mainCamera = Camera.main;
-            _fixedY = transform.position.y;
-            _fixedZ = transform.position.z;
-            _startX = transform.position.x;
+            innerPieces = GetComponentsInChildren<InnerPiece>().ToList();
         }
 
-        void Update()
+        public void TriggerMatchChecking()
         {
-            if (Input.GetMouseButton(0))
+            for (int i = 0; i < innerPieces.Count; i++)
             {
-                HandleMouseDrag();
-            }
-            else if (Input.GetMouseButtonUp(0))
-            {
-                HandleMouseUp();
+                innerPieces[i].CheckMatches();
             }
         }
 
-        #region Mouse Functions
+        #region Getters/Setters
 
-        private void HandleMouseDrag()
+        public void SetCell(CellController cell)
         {
-            // Track finger position in world space
-            Vector3 mouseScreenPos = Input.mousePosition;
-            mouseScreenPos.z = Mathf.Abs(_mainCamera.transform.position.z - transform.position.z);
-            Vector3 worldPos = _mainCamera.ScreenToWorldPoint(mouseScreenPos);
-
-            // Clamp X movement
-            float targetX = Mathf.Clamp(worldPos.x, _startX - moveLimit, _startX + moveLimit);
-            transform.position = new Vector3(targetX, _fixedY, _fixedZ);
-
-            // Get the closest cell to current position
-            CellController closestCell = _gridManager.GetClosestGridCell(transform.position);
-            if (closestCell == null) return;
-
-            int currentColumnIndex = closestCell.GetCoordinates().y;
-
-            // Only update if column has changed
-            if (currentColumnIndex != _lastColumnIndex)
-            {
-                _lastColumnIndex = currentColumnIndex;
-                _prevColumn = closestColumn;
-                closestColumn = _gridManager.GetCellsInSameColumn(closestCell);
-
-                _gridManager.HighlightColumn(closestColumn, _prevColumn);
-
-
-                // TODO: Trigger highlight effect here
-                // Example: HighlightCells(closestColumn);
-            }
+            parentCell = cell;
         }
 
-        private void HandleMouseUp()
+        public CellController GetCell()
         {
-            CellController emptyCell = DataExtensions.GetEmptyCell(closestColumn);
-            closestColumn.Clear();
+            return parentCell;
+        }
 
-            if (emptyCell == null) return;
+        public List<InnerPiece> GetInnerPieces()
+        {
+            return innerPieces;
+        }
 
-            emptyCell.SetOccupied(gameObject);
-            transform.position = new Vector3(emptyCell.transform.position.x, _fixedY, _fixedZ);
-            transform.DOMoveZ(emptyCell.transform.position.z, 1f)
-                .SetEase(Ease.OutBounce);
+        public List<InnerPiece> GetFacedInnerPieces(Vector2Int targetCoordinates, out Vector2Int facingDirection)
+        {
+            Vector2Int interval = parentCell.GetCoordinates() - targetCoordinates;
+
+            // Corrected mapping
+            Dictionary<Vector2Int, PiecePositionEnum[]> directionMap = new()
+            {
+                { Vector2Int.left, new[] { PiecePositionEnum.Second, PiecePositionEnum.Fourth } },
+                { Vector2Int.right, new[] { PiecePositionEnum.First, PiecePositionEnum.Third } },
+                { Vector2Int.up, new[] { PiecePositionEnum.Third, PiecePositionEnum.Fourth } },
+                { Vector2Int.down, new[] { PiecePositionEnum.First, PiecePositionEnum.Second } }
+            };
+
+            if (!directionMap.TryGetValue(interval, out var validPositions))
+            {
+                facingDirection = Vector2Int.zero;
+                Debug.LogWarning(
+                    $"Target at {targetCoordinates} is not a direct neighbor of {parentCell.GetCoordinates()}");
+                return new List<InnerPiece>();
+            }
+
+            facingDirection = interval;
+            Debug.Log(
+                $"Facing direction from {parentCell.GetCoordinates()} to {targetCoordinates} is: {facingDirection}");
+
+            return innerPieces
+                .Where(piece => validPositions.Contains(piece.GetInnerPieceData().piecePositionEnum))
+                .ToList();
         }
 
         #endregion
+
+        public void RemoveInnerPiece(InnerPiece innerPiece)
+        {
+            if (innerPieces.Contains(innerPiece))
+                innerPieces.Remove(innerPiece);
+
+            if (innerPieces.Count == 0)
+            {
+                _gridManager.OnAJellyBlockDestroyed(parentCell.GetCoordinates(), this);
+                DestroySelf();
+            }
+        }
+
+        public void MoveDownOnColumn()
+        {
+            Vector2Int targetCoordinates = parentCell.GetCoordinates() + new Vector2Int(0, -1);
+
+            parentCell.SetFree();
+            parentCell = _gridManager.GetGridCellByCoordinates(targetCoordinates);
+
+
+            Vector3 pos = new Vector3(transform.position.x, transform.position.y, parentCell.transform.position.z);
+            transform.DOMove(pos, 0.5f).OnComplete(() => parentCell.SetOccupied(this));
+        }
+
+        private void DestroySelf()
+        {
+            transform.DOScale(Vector3.zero, 0.2f).OnComplete(() => Destroy(gameObject, 0.2f));
+        }
     }
 }

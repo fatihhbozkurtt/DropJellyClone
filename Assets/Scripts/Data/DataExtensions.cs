@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using EssentialManagers.Packages.GridManager.Scripts;
+using So;
+using UnityEngine;
 
 namespace Data
 {
@@ -15,6 +19,21 @@ namespace Data
             }
             
             return null;
+        }
+        
+        public static ColorMaterialData GetMaterialByColorEnum(ColorEnum colorEnum)
+        {
+            ColorEnumSo generalList = Resources.Load<ColorEnumSo>($"ColorMaterialDataList");
+
+            var data = generalList?.ColorMaterialDataList.FirstOrDefault(x => x.ColorEnum == colorEnum);
+            return data;
+        }
+        
+        public static ColorEnum GetRandomColorEnum()
+        {
+            Array values = Enum.GetValues(typeof(ColorEnum));
+            int randomIndex = UnityEngine.Random.Range(0, values.Length);
+            return (ColorEnum)values.GetValue(randomIndex);
         }
     }
 }

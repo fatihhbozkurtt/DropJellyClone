@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Controllers;
 using UnityEngine;
 
 namespace EssentialManagers.Packages.GridManager.Scripts
@@ -39,7 +40,7 @@ namespace EssentialManagers.Packages.GridManager.Scripts
                         if (cell == null) continue;
                         if (!cell.gameObject.activeInHierarchy) continue;
 
-                        cell.Initialize(new Vector2Int(row, col)); // row = Z yönü, col = X yönü
+                        cell.Initialize(new Vector2Int(col, row)); // row = X yönü, col = Z yönü
                         gridPlan.Add(cell);
                         index++;
                     }
@@ -77,11 +78,10 @@ namespace EssentialManagers.Packages.GridManager.Scripts
             }
 
             Vector2Int refCoords = referenceCell.GetCoordinates();
-            int targetColumn = refCoords.y; // y = X axis (column)
+            int targetColumn = refCoords.x;
 
             return gridPlan
-                .Where(cell => cell.GetCoordinates().y == targetColumn)
-                .OrderBy(cell => cell.GetCoordinates().x) // Optional: order from bottom to top
+                .Where(cell => cell.GetCoordinates().x == targetColumn)
                 .ToList();
         }
 
@@ -158,6 +158,29 @@ namespace EssentialManagers.Packages.GridManager.Scripts
             foreach (var c in newColumn)
             {
                 c.SetHighlight();
+            }
+        }
+
+        public void OnAJellyBlockDestroyed(Vector2Int coordinates, JellyBlock destroyedBlocked)
+        {
+            int column = coordinates.x;
+            int row = coordinates.y;
+            List<JellyBlock> moveableBlocks = new List<JellyBlock>();
+
+            foreach (var cell in gridPlan)
+            {
+                if (cell.GetCoordinates().x != column) continue;
+                if (cell.GetCoordinates().y < row) continue;
+                if (!cell.isOccupied) continue;
+                if (cell.GetOccupantJB() == destroyedBlocked) continue;
+
+                moveableBlocks.Add(cell.GetOccupantJB());
+            }
+
+            foreach (var jb in moveableBlocks)
+            {
+                Debug.Log("Move mate: " + jb);
+                jb.MoveDownOnColumn();
             }
         }
     }

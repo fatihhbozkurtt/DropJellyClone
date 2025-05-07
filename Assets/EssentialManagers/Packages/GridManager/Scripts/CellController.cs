@@ -1,23 +1,23 @@
 using System.Collections.Generic;
+using Controllers;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace EssentialManagers.Packages.GridManager.Scripts
 {
     public class CellController : MonoBehaviour
     {
         [Header("References")] [SerializeField]
-        private Transform cellGround;
+        private GameObject occupierObjectPrefab;
 
-        [SerializeField] private GameObject occupierObjectPrefab;
         [SerializeField] private GameObject highlightMesh;
         [SerializeField] private GameObject standartMesh;
-    
 
-        [Header("Debug")] public bool isPickable;
-        public bool isOccupied;
-        [SerializeField] private GameObject spawnedOccupierObj;
+
+        [Header("Debug")] public bool isOccupied;
+        [SerializeField] private JellyBlock occupantJellyBlock;
         [SerializeField] Vector2Int coordinates;
-        public List<CellController> neighbours;
+        [SerializeField] List<CellController> neighbours;
 
         private void Start()
         {
@@ -42,24 +42,24 @@ namespace EssentialManagers.Packages.GridManager.Scripts
             highlightMesh.SetActive(false);
             standartMesh.SetActive(true);
         }
-    
+
         #region GETTERS & SETTERS
 
-        public void SetOccupied(GameObject _csh)
+        public void SetOccupied(JellyBlock jb)
         {
-            spawnedOccupierObj = _csh;
+            occupantJellyBlock = jb;
             isOccupied = true;
         }
 
         public void SetFree()
         {
-            spawnedOccupierObj = null;
+            occupantJellyBlock = null;
             isOccupied = false;
         }
 
-        public GameObject GetOccupierObject()
+        public JellyBlock GetOccupantJB()
         {
-            return spawnedOccupierObj;
+            return occupantJellyBlock;
         }
 
         public Vector2Int GetCoordinates()
@@ -67,14 +67,14 @@ namespace EssentialManagers.Packages.GridManager.Scripts
             return coordinates;
         }
 
-        private List<CellController> GetNeighbors()
+        public List<CellController> GetNeighbors()
         {
             List<CellController> gridCells = GridManager.instance.gridPlan;
             List<CellController> neighbors = new();
 
-            // Direction vectors for 8 directions (including diagonals)
-            int[] dx = { 1, 1, 0, -1, -1, -1, 0, 1 };
-            int[] dz = { 0, 1, 1, 1, 0, -1, -1, -1 };
+            // Direction vectors for 4 cardinal directions: Right, Up, Left, Down
+            int[] dx = { 1, 0, -1, 0 };
+            int[] dz = { 0, 1, 0, -1 };
 
             for (int i = 0; i < dx.Length; i++)
             {
