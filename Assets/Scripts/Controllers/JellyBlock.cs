@@ -79,7 +79,7 @@ namespace Controllers
                 $"Facing direction from {parentCell.GetCoordinates()} to {targetCoordinates} is: {facingDirection}");
 
             return innerPieces
-                .Where(piece => validPositions.Contains(piece.GetInnerPieceData().piecePositionEnum))
+                .Where(piece => validPositions.Contains(piece.GetInnerPieceData().PiecePositionEnum))
                 .ToList();
         }
 

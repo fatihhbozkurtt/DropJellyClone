@@ -17,18 +17,26 @@ namespace Controllers
 
         [Header("Debug")] [SerializeField] JellyBlock parentJellyBlock;
         [SerializeField] private List<InnerPiece> tempFacedInnerPieces;
-
-
+        
         private void Awake()
         {
             innerPieceData.ColorEnum = DataExtensions.GetRandomColorEnum();
-
             parentJellyBlock = transform.parent.GetComponent<JellyBlock>();
-
-
             meshRenderer.material = DataExtensions.GetMaterialByColorEnum(innerPieceData.ColorEnum).Material;
+            string nameSuffix;
 
-            gameObject.name = "Piece_" + innerPieceData.ColorEnum + "_" + innerPieceData.piecePositionEnum;
+            if (innerPieceData.ScaleType != ScaleType.TwoByTwo)
+            {
+                nameSuffix = innerPieceData.PiecePositionEnum == PiecePositionEnum.None
+                    ? innerPieceData.EdgeEnum.ToString()
+                    : innerPieceData.PiecePositionEnum.ToString();
+            }
+            else
+            {
+                nameSuffix = innerPieceData.ScaleType.ToString();
+            }
+
+            gameObject.name = "Piece_" + innerPieceData.ColorEnum + "_" + nameSuffix;
         }
 
         public void CheckMatches()
@@ -62,69 +70,218 @@ namespace Controllers
                 Vector2Int neighborCellCoor = jellyBlock.GetCell().GetCoordinates();
                 Vector2Int interval = neighborCellCoor - myCellCoor;
 
-                switch (innerPieceData.piecePositionEnum)
+                if (innerPieceData.ScaleType == ScaleType.OneByOne)
                 {
-                    case PiecePositionEnum.First:
-                        if (interval == Vector2Int.left) // neighbor jelly is on my left
-                        {
-                            facedInnerPieces.AddRange(pieces.Where(t =>
-                                t.GetInnerPieceData().piecePositionEnum == PiecePositionEnum.Second));
-                        }
+                    switch (innerPieceData.PiecePositionEnum)
+                    {
+                        case PiecePositionEnum.First:
+                            if (interval == Vector2Int.left) // neighbor jelly is on my left
+                            {
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Second));
+                            }
 
-                        if (interval == Vector2Int.up)
-                        {
-                            facedInnerPieces.AddRange(pieces.Where(t =>
-                                t.GetInnerPieceData().piecePositionEnum == PiecePositionEnum.Third));
-                        }
+                            if (interval == Vector2Int.up)
+                            {
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Third));
+                            }
 
-                        break;
-                    case PiecePositionEnum.Second:
+                            break;
+                        case PiecePositionEnum.Second:
 
-                        if (interval == Vector2Int.right) // neighbor jelly is on my left
-                        {
-                            facedInnerPieces.AddRange(pieces.Where(t =>
-                                t.GetInnerPieceData().piecePositionEnum == PiecePositionEnum.First));
-                        }
+                            if (interval == Vector2Int.right) // neighbor jelly is on my left
+                            {
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.First));
+                            }
 
-                        if (interval == Vector2Int.up)
-                        {
-                            facedInnerPieces.AddRange(pieces.Where(t =>
-                                t.GetInnerPieceData().piecePositionEnum == PiecePositionEnum.Fourth));
-                        }
+                            if (interval == Vector2Int.up)
+                            {
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Fourth));
+                            }
 
-                        break;
-                    case PiecePositionEnum.Third:
+                            break;
+                        case PiecePositionEnum.Third:
 
-                        if (interval == Vector2Int.left) // neighbor jelly is on my left
-                        {
-                            facedInnerPieces.AddRange(pieces.Where(t =>
-                                t.GetInnerPieceData().piecePositionEnum == PiecePositionEnum.Fourth));
-                        }
+                            if (interval == Vector2Int.left) // neighbor jelly is on my left
+                            {
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Fourth));
+                            }
 
-                        if (interval == Vector2Int.down)
-                        {
-                            facedInnerPieces.AddRange(pieces.Where(t =>
-                                t.GetInnerPieceData().piecePositionEnum == PiecePositionEnum.First));
-                        }
+                            if (interval == Vector2Int.down)
+                            {
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.First));
+                            }
 
-                        break;
-                    case PiecePositionEnum.Fourth:
+                            break;
+                        case PiecePositionEnum.Fourth:
 
-                        if (interval == Vector2Int.right) // neighbor jelly is on my left
-                        {
-                            facedInnerPieces.AddRange(pieces.Where(t =>
-                                t.GetInnerPieceData().piecePositionEnum == PiecePositionEnum.Third));
-                        }
+                            if (interval == Vector2Int.right) // neighbor jelly is on my left
+                            {
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Third));
+                            }
 
-                        if (interval == Vector2Int.down)
-                        {
-                            facedInnerPieces.AddRange(pieces.Where(t =>
-                                t.GetInnerPieceData().piecePositionEnum == PiecePositionEnum.Second));
-                        }
+                            if (interval == Vector2Int.down)
+                            {
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Second));
+                            }
 
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+
+                if (innerPieceData.ScaleType == ScaleType.TwoByOne)
+                {
+                    switch (innerPieceData.EdgeEnum)
+                    {
+                        case EdgeEnum.None:
+                            Debug.LogWarning("Something wrong with the edge enum. It cannot be none.");
+                            break;
+                        case EdgeEnum.Left:
+                            if (interval == Vector2Int.left)
+                            {
+                                // we assume neighbor inner piece is OneByOne type
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Second
+                                    || t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Fourth));
+                            }
+
+                            if (interval == Vector2Int.up)
+                            {
+                                // we assume neighbor inner piece is OneByOne type
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Third));
+                            }
+
+                            if (interval == Vector2Int.down)
+                            {
+                                // we assume neighbor inner piece is OneByOne type
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.First));
+                            }
+
+                            break;
+                        case EdgeEnum.Right:
+                            if (interval == Vector2Int.right) // neighbor jelly is on my right
+                            {
+                                // we assume neighbor inner piece is OneByOne type
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.First
+                                    || t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Third));
+                            }
+
+                            if (interval == Vector2Int.up)
+                            {
+                                // we assume neighbor inner piece is OneByOne type
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Fourth));
+                            }
+
+                            if (interval == Vector2Int.down)
+                            {
+                                // we assume neighbor inner piece is OneByOne type
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Second));
+                            }
+
+                            break;
+                        case EdgeEnum.Top:
+                            if (interval == Vector2Int.left)
+                            {
+                                // we assume neighbor inner piece is OneByOne type
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Second));
+                            }
+
+                            if (interval == Vector2Int.right)
+                            {
+                                // we assume neighbor inner piece is OneByOne type
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.First));
+                            }
+
+                            if (interval == Vector2Int.up)
+                            {
+                                // we assume neighbor inner piece is OneByOne type
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Third
+                                    || t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Fourth));
+                            }
+
+                            break;
+                        case EdgeEnum.Bottom:
+                            if (interval == Vector2Int.left)
+                            {
+                                // we assume neighbor inner piece is OneByOne type
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Fourth));
+                            }
+
+                            if (interval == Vector2Int.right)
+                            {
+                                // we assume neighbor inner piece is OneByOne type
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Third));
+                            }
+
+                            if (interval == Vector2Int.down)
+                            {
+                                // we assume neighbor inner piece is OneByOne type
+                                facedInnerPieces.AddRange(pieces.Where(t =>
+                                    t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.First
+                                    || t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Second));
+                            }
+
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+
+                if (innerPieceData.ScaleType == ScaleType.TwoByTwo)
+                {
+                    #region 1x1 Solutions
+                   
+                    if (interval == Vector2Int.left) // neighbor jelly is on my left
+                    {
+                        facedInnerPieces.AddRange(pieces.Where(t =>
+                            t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Second
+                            || t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Fourth));
+                    }
+                    
+                    if (interval == Vector2Int.right) // neighbor jelly is on my right
+                    {
+                        facedInnerPieces.AddRange(pieces.Where(t =>
+                            t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.First
+                            || t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Third));
+                    }
+
+                    if (interval == Vector2Int.up) // neighbor jelly is on top of me
+                    {
+                        facedInnerPieces.AddRange(pieces.Where(t =>
+                            t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Third
+                            || t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Fourth));
+                    }
+                    
+                    if (interval == Vector2Int.down) // neighbor jelly is under me
+                    {
+                        facedInnerPieces.AddRange(pieces.Where(t =>
+                            t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.First
+                            || t.GetInnerPieceData().PiecePositionEnum == PiecePositionEnum.Second));
+                    }
+                    #endregion
+
+                    // #region 2x1 Solutions
+                    //
+                    // #endregion
                 }
 
                 facedPieces.AddRange(facedInnerPieces);

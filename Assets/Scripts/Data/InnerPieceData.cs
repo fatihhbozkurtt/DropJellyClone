@@ -1,11 +1,13 @@
-﻿using UnityEngine.Serialization;
-
-namespace Data
+﻿namespace Data
 {
     [System.Serializable]
     public class InnerPieceData
     {
         public ColorEnum ColorEnum;
-        [FormerlySerializedAs("DirectionEnum")] public PiecePositionEnum piecePositionEnum;
+        public ScaleType ScaleType; 
+        public PiecePositionEnum PiecePositionEnum;
+        public EdgeEnum EdgeEnum;
+        
     }
 }
+
