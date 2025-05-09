@@ -325,11 +325,11 @@ namespace Data
             switch (myEdge)
             {
                 case EdgeEnum.Left:
-                    if (interval == Vector2Int.left || interval == Vector2Int.up) list.Add(neighbor);
+                    if (interval != Vector2Int.right) list.Add(neighbor);
                     break;
 
                 case EdgeEnum.Right:
-                    if (interval == Vector2Int.right || interval == Vector2Int.up) list.Add(neighbor);
+                    if (interval != Vector2Int.left) list.Add(neighbor);
                     break;
 
                 case EdgeEnum.Top:

@@ -38,7 +38,7 @@ namespace Data
             return (ColorEnum)values.GetValue(randomIndex);
         }
         
-        private static Random rng = new Random();
+        private static Random rng = new();
 
         public static List<ColorEnum> GetUniqueRandomColors(int count)
         { 

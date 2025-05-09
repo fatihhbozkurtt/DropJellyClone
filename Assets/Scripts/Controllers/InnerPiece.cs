@@ -6,7 +6,6 @@ using DG.Tweening;
 using EssentialManagers.Packages.GridManager.Scripts;
 using Managers;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Controllers
 {
@@ -18,8 +17,7 @@ namespace Controllers
         MeshRenderer meshRenderer;
 
         [Header("Debug")] [SerializeField] JellyBlock parentJellyBlock;
-        public bool IsMatched { get; private set; }
-        [SerializeField] private bool spawnedByEditor;
+        public bool IsMatched { get; private set; } 
 
         private void Awake()
         {
@@ -52,18 +50,14 @@ namespace Controllers
             SetMaterialColor();
         }
 
-        private void SetMaterialColor()
-        {
-            meshRenderer.material = DataExtensions.GetMaterialByColorEnum(innerPieceData.ColorEnum).Material;
-        }
-
         public void InitializeEditor(InnerPieceData data)
         {
             innerPieceData = data;
             Vector3 scale = meshRenderer.transform.localScale;
             Vector3 posOffset = Vector3.zero;
             float generalOffset = ScaleModifier.GeneralPosOffset();
-
+            
+            // ASSIGN SCALE AND POSITION    
             if (innerPieceData.ScaleType == ScaleType.OneByOne)
             {
                 switch (data.PiecePositionEnum)
@@ -116,8 +110,7 @@ namespace Controllers
             {
                 scale = ScaleModifier.GetFullScale();
             }
-
-            spawnedByEditor = true;
+ 
             meshRenderer.transform.localScale = scale;
             meshRenderer.transform.localPosition += posOffset;
             SetMaterialColor();
@@ -206,6 +199,7 @@ namespace Controllers
             });
         }
 
+        #region Getters/Setter
 
         public InnerPieceData GetInnerPieceData()
         {
@@ -216,5 +210,11 @@ namespace Controllers
         {
             return meshRenderer.transform.localPosition;
         }
+        private void SetMaterialColor()
+        {
+            meshRenderer.material = DataExtensions.GetMaterialByColorEnum(innerPieceData.ColorEnum).Material;
+        }
+        #endregion
+        
     }
 }
