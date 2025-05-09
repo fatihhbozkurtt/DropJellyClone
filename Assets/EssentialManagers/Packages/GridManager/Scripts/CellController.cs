@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Controllers;
+using Data;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace EssentialManagers.Packages.GridManager.Scripts
 {
@@ -12,18 +12,26 @@ namespace EssentialManagers.Packages.GridManager.Scripts
 
         [SerializeField] private GameObject highlightMesh;
         [SerializeField] private GameObject standartMesh;
-
-
+        
         [Header("Debug")] public bool isOccupied;
         [SerializeField] private JellyBlock occupantJellyBlock;
         [SerializeField] Vector2Int coordinates;
         [SerializeField] List<CellController> neighbours;
+        
+        [Header("LEVEL DESIGN DATA")]
+        [SerializeField] private List<InnerPieceData> spawnablePieceDataList;
 
         private void Start()
         {
             name = coordinates.ToString();
 
             neighbours = GetNeighbors();
+
+            // if (spawnablePieceDataList.Count != 0)
+            // {
+            //     // Instantiate jelly block
+            //     
+            // }
         }
 
         public void Initialize(Vector2Int initCoords)
@@ -55,6 +63,11 @@ namespace EssentialManagers.Packages.GridManager.Scripts
         {
             occupantJellyBlock = null;
             isOccupied = false;
+        }
+
+        public List<InnerPieceData> GetSpawnablePieceDataList()
+        {
+            return spawnablePieceDataList;
         }
 
         public JellyBlock GetOccupantJB()
@@ -92,4 +105,10 @@ namespace EssentialManagers.Packages.GridManager.Scripts
 
         #endregion
     }
+}
+
+[System.Serializable]
+public class JellySpawnData
+{
+    
 }

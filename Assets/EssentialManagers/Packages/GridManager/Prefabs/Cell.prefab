@@ -46,13 +46,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff53b177be59b9f49b0342164370aa8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  occupierObjectPrefab: {fileID: 32473546597358348, guid: 336caca4ce87a3d4c9b7a953fcefff82, type: 3}
+  occupierObjectPrefab: {fileID: 5984363527413172054, guid: da0f9c9886eeef04484cd28d921d449f, type: 3}
   highlightMesh: {fileID: 3586416345732133814}
   standartMesh: {fileID: 8522211955962700096}
   isOccupied: 0
   occupantJellyBlock: {fileID: 0}
   coordinates: {x: 0, y: 0}
   neighbours: []
+  spawnablePieceDataList: []
 --- !u!1 &3586416345732133814
 GameObject:
   m_ObjectHideFlags: 0

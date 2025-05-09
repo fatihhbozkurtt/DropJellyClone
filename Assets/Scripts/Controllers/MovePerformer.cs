@@ -81,7 +81,8 @@ namespace Controllers
             closestColumn.Clear();
 
             if (emptyCell == null) return;
-
+            
+            GetComponent<MovePerformer>().enabled = false;
             emptyCell.SetOccupied(_jellyBlock);
             _jellyBlock.SetCell(emptyCell);
 
@@ -92,7 +93,6 @@ namespace Controllers
                 {
                     _jellyBlock.TriggerMatchChecking();
                     BlockSpawnManager.instance.SpawnJellyBlock();
-                    GetComponent<MovePerformer>().enabled = false;
                 });
         }
 

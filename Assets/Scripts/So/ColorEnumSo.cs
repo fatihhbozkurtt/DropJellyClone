@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Data;
+using Data.Enums;
 using UnityEngine;
 
 namespace So

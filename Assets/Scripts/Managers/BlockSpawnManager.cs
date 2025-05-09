@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using Controllers;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Managers
 {
@@ -10,6 +12,12 @@ namespace Managers
         private List<JellyBlock> blockPrefabs;
 
         [SerializeField] private Transform spawnTransform;
+
+
+        private void Start()
+        { 
+           // MatchCheckerManager.instance.AddAllMatchesCompletedListener(SpawnJellyBlock);
+        }
 
         public void SpawnJellyBlock()
         {

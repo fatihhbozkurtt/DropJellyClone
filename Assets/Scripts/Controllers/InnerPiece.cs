@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
 using Data;
+using Data.Enums;
 using DG.Tweening;
 using EssentialManagers.Packages.GridManager.Scripts;
+using Managers;
 using UnityEngine;
 
 namespace Controllers
@@ -14,13 +17,16 @@ namespace Controllers
         MeshRenderer meshRenderer;
 
         [Header("Debug")] [SerializeField] JellyBlock parentJellyBlock;
-        [SerializeField] private List<InnerPiece> tempFacedInnerPieces;
+        public bool IsMatched { get; private set; }
 
         private void Awake()
         {
-            innerPieceData.ColorEnum = DataExtensions.GetRandomColorEnum();
+          // innerPieceData.ColorEnum = DataExtensions.GetRandomColorEnum();
+          
             parentJellyBlock = transform.parent.GetComponent<JellyBlock>();
-            meshRenderer.material = DataExtensions.GetMaterialByColorEnum(innerPieceData.ColorEnum).Material;
+            parentJellyBlock.PieceRemovedEvent += OnPieceRemoved;
+            #region Namification
+
             string nameSuffix;
 
             if (innerPieceData.ScaleType != ScaleType.TwoByTwo)
@@ -35,12 +41,99 @@ namespace Controllers
             }
 
             gameObject.name = "Piece_" + innerPieceData.ColorEnum + "_" + nameSuffix;
+
+            #endregion
+        }
+
+        public void Initialize(InnerPieceData data)
+        {
+            innerPieceData = data;
+            Vector3 scale = meshRenderer.transform.localScale;
+            Vector3 posOffset = Vector3.zero;
+            float generalOffset = ScaleModifier.GeneralPosOffset();
+            
+            if (innerPieceData.ScaleType == ScaleType.OneByOne)
+            {
+                switch (data.PiecePositionEnum)
+                {
+                    case PiecePositionEnum.None:
+                        break;
+                    case PiecePositionEnum.First:
+                        posOffset = new Vector3(-generalOffset, 0, generalOffset);
+                        break;
+                    case PiecePositionEnum.Second:
+                        posOffset = new Vector3(generalOffset, 0, generalOffset);
+                        break;
+                    case PiecePositionEnum.Third:
+                        posOffset = new Vector3(-generalOffset, 0, -generalOffset);
+                        break;
+                    case PiecePositionEnum.Fourth:
+                        posOffset = new Vector3(generalOffset, 0, -generalOffset);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            else if (innerPieceData.ScaleType == ScaleType.TwoByOne)
+            {
+                switch (data.EdgeEnum)
+                {
+                    case EdgeEnum.None:
+                        break;
+                    case EdgeEnum.Left:
+                        scale = ScaleModifier.GetVerticalScale();
+                        posOffset = new Vector3(-generalOffset, 0, 0);
+                        break;
+                    case EdgeEnum.Right:
+                        scale = ScaleModifier.GetVerticalScale();
+                        posOffset = new Vector3(generalOffset, 0, 0);
+                        break;
+                    case EdgeEnum.Top:
+                        scale = ScaleModifier.GetHorizontalScale();
+                        posOffset = new Vector3(0, 0, generalOffset);
+                        break;
+                    case EdgeEnum.Bottom:
+                        scale = ScaleModifier.GetHorizontalScale();
+                        posOffset = new Vector3(0, 0, -generalOffset);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            else if(innerPieceData.ScaleType == ScaleType.TwoByTwo)
+            {
+                scale = ScaleModifier.GetFullScale();
+            }
+            
+            meshRenderer.transform.localScale = scale;
+            meshRenderer.transform.localPosition += posOffset;
+            meshRenderer.material = DataExtensions.GetMaterialByColorEnum(innerPieceData.ColorEnum).Material;
+        }
+        
+        private void OnPieceRemoved(InnerPieceData removedPieceData)
+        {
+            // re-modify your scale, position, and rotation
+            ScaleData scaleData = ScaleModifier.GetModifiedScale(removedPieceData, this, parentJellyBlock);
+
+            if (scaleData.ModifiedPieceData == null) return;
+
+            // assign piece position if the scaleType is 2x2
+            Vector3 newPos = scaleData.ModifiedPieceData.ScaleType == ScaleType.TwoByTwo
+                ? Vector3.zero
+                : transform.localPosition;
+            if (newPos != transform.localPosition) transform.DOLocalMove(newPos, 0.2f);
+
+            innerPieceData = scaleData.ModifiedPieceData;
+
+            Sequence sequence = DOTween.Sequence();
+            sequence.Join(meshRenderer.transform.DOScale(scaleData.Scale, 0.25f));
+            sequence.Join(meshRenderer.transform.DOLocalMove(scaleData.Pos, 0.25f));
+            sequence.OnComplete(() => parentJellyBlock.TriggerMatchChecking());
         }
 
         public void CheckMatches()
         {
             List<JellyBlock> neighborJellyBlocks = new List<JellyBlock>();
-            List<InnerPiece> facedPieces = new List<InnerPiece>();
             CellController parentCell = parentJellyBlock.GetCell();
 
             #region Get Neighbor Jelly Blocks
@@ -60,42 +153,55 @@ namespace Controllers
             #region Get Faced Inner Pieces
 
             Vector2Int myCoord = parentCell.GetCoordinates();
-            
-            facedPieces = FacedPieceChecker.GetFacedPieces(
+
+            List<InnerPiece> facedPieces = FacedPieceChecker.GetFacedPieces(
                 innerPieceData,
                 neighborJellyBlocks,
                 myCoord);
 
-            tempFacedInnerPieces = facedPieces;
-
             #endregion
-
 
             #region Check For Color Matches
 
+            bool isMatched = false;
             foreach (var piece in facedPieces)
             {
                 if (piece.GetInnerPieceData().ColorEnum != innerPieceData.ColorEnum) continue;
 
-                piece.PerformMatch();
-                PerformMatch();
+                piece.OnMatchOccuredDestroyself();
+                isMatched = true;
+            }
+
+            if (isMatched)
+            {
+                MatchCheckerManager.instance.RegisterMatchCheck();
+                OnMatchOccuredDestroyself(true);
             }
 
             #endregion
         }
 
-        private void PerformMatch()
+        private void OnMatchOccuredDestroyself(bool unregister = false)
         {
+            IsMatched = true;
             transform.DOScale(Vector3.zero, 1f).OnComplete(() =>
             {
+                parentJellyBlock.PieceRemovedEvent -= OnPieceRemoved;
                 parentJellyBlock.RemoveInnerPiece(this);
+                if (unregister) MatchCheckerManager.instance.UnregisterMatchCheck();
                 Destroy(gameObject);
             });
         }
 
+
         public InnerPieceData GetInnerPieceData()
         {
             return innerPieceData;
+        }
+
+        public Vector3 GetMeshPos()
+        {
+            return meshRenderer.transform.localPosition;
         }
     }
 }

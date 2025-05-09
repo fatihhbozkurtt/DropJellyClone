@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Data.Enums;
 using EssentialManagers.Packages.GridManager.Scripts;
 using So;
 using UnityEngine;

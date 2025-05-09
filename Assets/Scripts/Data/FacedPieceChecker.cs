@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Controllers;
+using Data.Enums;
 using UnityEngine;
 
 namespace Data
@@ -61,7 +62,22 @@ namespace Data
 
                     if (neighborData.ScaleType == ScaleType.TwoByTwo) // check if neighbor 2x2
                     {
-                        facedPieces.Add(neighborPiece);
+                        switch (myData.ScaleType)
+                        {
+                            case ScaleType.OneByOne:
+                                facedPieces.AddRange(GetFacedFor1X1VersionThree(interval, myData.PiecePositionEnum,
+                                    neighborPiece));
+                                break;
+
+                            case ScaleType.TwoByOne:
+                                facedPieces.AddRange(GetFacedFor2X1VersionThree(interval, myData.EdgeEnum,
+                                    neighborPiece));
+                                break;
+
+                            case ScaleType.TwoByTwo:
+                                facedPieces.Add(neighborPiece);
+                                break;
+                        }
                     }
                 }
             }
@@ -197,8 +213,8 @@ namespace Data
             else if (myPos == PiecePositionEnum.Fourth)
             {
                 if (interval == Vector2Int.right &&
-                    pData.EdgeEnum == EdgeEnum.Bottom ||
-                    pData.EdgeEnum == EdgeEnum.Left) list.Add(neighbor);
+                    (pData.EdgeEnum == EdgeEnum.Bottom ||
+                    pData.EdgeEnum == EdgeEnum.Left)) list.Add(neighbor);
                 if (interval == Vector2Int.down &&
                     pData.EdgeEnum == EdgeEnum.Top ||
                     pData.EdgeEnum == EdgeEnum.Right) list.Add(neighbor);
@@ -228,7 +244,7 @@ namespace Data
                     if (interval == Vector2Int.up &&
                         (pData.EdgeEnum == EdgeEnum.Right || pData.EdgeEnum == EdgeEnum.Bottom)) list.Add(neighbor);
                     if (interval == Vector2Int.down &&
-                        (pData.EdgeEnum == EdgeEnum.Left || pData.EdgeEnum == EdgeEnum.Top)) list.Add(neighbor);
+                        (pData.EdgeEnum == EdgeEnum.Right || pData.EdgeEnum == EdgeEnum.Top)) list.Add(neighbor);
                     break;
 
                 case EdgeEnum.Top:
@@ -261,6 +277,69 @@ namespace Data
             if (interval == Vector2Int.right && pData.EdgeEnum != EdgeEnum.Right) list.Add(neighbor);
             if (interval == Vector2Int.up && pData.EdgeEnum != EdgeEnum.Top) list.Add(neighbor);
             if (interval == Vector2Int.down && pData.EdgeEnum != EdgeEnum.Bottom) list.Add(neighbor);
+
+            return list;
+        }
+
+        #endregion
+
+        #region Faced Neighbor 2x2 Solutions
+
+        private static List<InnerPiece> GetFacedFor1X1VersionThree(Vector2Int interval, PiecePositionEnum myPos,
+            InnerPiece neighbor)
+        {
+            List<InnerPiece> list = new();
+
+            switch (myPos)
+            {
+                case PiecePositionEnum.First:
+                {
+                    if (interval == Vector2Int.left || interval == Vector2Int.up) list.Add(neighbor);
+                    break;
+                }
+                case PiecePositionEnum.Second:
+                {
+                    if (interval == Vector2Int.right || interval == Vector2Int.up) list.Add(neighbor);
+                    break;
+                }
+                case PiecePositionEnum.Third:
+                {
+                    if (interval == Vector2Int.left || interval == Vector2Int.down) list.Add(neighbor);
+                    break;
+                }
+                case PiecePositionEnum.Fourth:
+                {
+                    if (interval == Vector2Int.right || interval == Vector2Int.down) list.Add(neighbor);
+                    break;
+                }
+            }
+
+            return list;
+        }
+
+        private static List<InnerPiece> GetFacedFor2X1VersionThree(Vector2Int interval, EdgeEnum myEdge,
+            InnerPiece neighbor)
+        {
+            List<InnerPiece> list = new();
+
+            switch (myEdge)
+            {
+                case EdgeEnum.Left:
+                    if (interval == Vector2Int.left || interval == Vector2Int.up) list.Add(neighbor);
+                    break;
+
+                case EdgeEnum.Right:
+                    if (interval == Vector2Int.right || interval == Vector2Int.up) list.Add(neighbor);
+                    break;
+
+                case EdgeEnum.Top:
+                    if (interval != Vector2Int.down) list.Add(neighbor);
+                    break;
+
+                case EdgeEnum.Bottom:
+                    if (interval != Vector2Int.up) list.Add(neighbor);
+                    break;
+            }
 
             return list;
         }

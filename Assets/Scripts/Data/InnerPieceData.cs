@@ -1,4 +1,6 @@
-﻿namespace Data
+﻿using Data.Enums;
+
+namespace Data
 {
     [System.Serializable]
     public class InnerPieceData
