@@ -5,6 +5,7 @@ using Data.Enums;
 using EssentialManagers.Packages.GridManager.Scripts;
 using So;
 using UnityEngine;
+using Random = System.Random;
 
 namespace Data
 {
@@ -35,6 +36,18 @@ namespace Data
             Array values = Enum.GetValues(typeof(ColorEnum));
             int randomIndex = UnityEngine.Random.Range(0, values.Length);
             return (ColorEnum)values.GetValue(randomIndex);
+        }
+        
+        private static Random rng = new Random();
+
+        public static List<ColorEnum> GetUniqueRandomColors(int count)
+        { 
+            var allColors = Enum.GetValues(typeof(ColorEnum)).Cast<ColorEnum>().ToList();
+ 
+            if (count > allColors.Count)
+                throw new ArgumentException($"İstenen {count} adet değer, mevcut {allColors.Count} enum sayısından fazla olamaz.");
+
+            return allColors.OrderBy(x => rng.Next()).Take(count).ToList();
         }
     }
 }

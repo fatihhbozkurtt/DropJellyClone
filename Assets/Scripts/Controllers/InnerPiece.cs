@@ -6,6 +6,7 @@ using DG.Tweening;
 using EssentialManagers.Packages.GridManager.Scripts;
 using Managers;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Controllers
 {
@@ -18,13 +19,13 @@ namespace Controllers
 
         [Header("Debug")] [SerializeField] JellyBlock parentJellyBlock;
         public bool IsMatched { get; private set; }
+        [SerializeField] private bool spawnedByEditor;
 
         private void Awake()
         {
-          // innerPieceData.ColorEnum = DataExtensions.GetRandomColorEnum();
-          
             parentJellyBlock = transform.parent.GetComponent<JellyBlock>();
             parentJellyBlock.PieceRemovedEvent += OnPieceRemoved;
+
             #region Namification
 
             string nameSuffix;
@@ -45,13 +46,24 @@ namespace Controllers
             #endregion
         }
 
-        public void Initialize(InnerPieceData data)
+        public void InitializeRuntime(ColorEnum colorEnum)
+        {
+            innerPieceData.ColorEnum = colorEnum;
+            SetMaterialColor();
+        }
+
+        private void SetMaterialColor()
+        {
+            meshRenderer.material = DataExtensions.GetMaterialByColorEnum(innerPieceData.ColorEnum).Material;
+        }
+
+        public void InitializeEditor(InnerPieceData data)
         {
             innerPieceData = data;
             Vector3 scale = meshRenderer.transform.localScale;
             Vector3 posOffset = Vector3.zero;
             float generalOffset = ScaleModifier.GeneralPosOffset();
-            
+
             if (innerPieceData.ScaleType == ScaleType.OneByOne)
             {
                 switch (data.PiecePositionEnum)
@@ -100,16 +112,17 @@ namespace Controllers
                         throw new ArgumentOutOfRangeException();
                 }
             }
-            else if(innerPieceData.ScaleType == ScaleType.TwoByTwo)
+            else if (innerPieceData.ScaleType == ScaleType.TwoByTwo)
             {
                 scale = ScaleModifier.GetFullScale();
             }
-            
+
+            spawnedByEditor = true;
             meshRenderer.transform.localScale = scale;
             meshRenderer.transform.localPosition += posOffset;
-            meshRenderer.material = DataExtensions.GetMaterialByColorEnum(innerPieceData.ColorEnum).Material;
+            SetMaterialColor();
         }
-        
+
         private void OnPieceRemoved(InnerPieceData removedPieceData)
         {
             // re-modify your scale, position, and rotation
@@ -168,23 +181,23 @@ namespace Controllers
             {
                 if (piece.GetInnerPieceData().ColorEnum != innerPieceData.ColorEnum) continue;
 
-                piece.OnMatchOccuredDestroyself();
+                piece.OnMatchOccuredDestroySelf();
                 isMatched = true;
             }
 
             if (isMatched)
             {
                 MatchCheckerManager.instance.RegisterMatchCheck();
-                OnMatchOccuredDestroyself(true);
+                OnMatchOccuredDestroySelf(true);
             }
 
             #endregion
         }
 
-        private void OnMatchOccuredDestroyself(bool unregister = false)
+        private void OnMatchOccuredDestroySelf(bool unregister = false)
         {
             IsMatched = true;
-            transform.DOScale(Vector3.zero, 1f).OnComplete(() =>
+            transform.DOScale(Vector3.zero, .5f).OnComplete(() =>
             {
                 parentJellyBlock.PieceRemovedEvent -= OnPieceRemoved;
                 parentJellyBlock.RemoveInnerPiece(this);

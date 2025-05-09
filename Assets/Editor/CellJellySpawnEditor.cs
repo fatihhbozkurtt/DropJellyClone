@@ -65,6 +65,8 @@ namespace Editor
                 return;
             }
 
+            if (spawnablePieceDataListProp.arraySize == 0) return;
+
             GameObject jellyObj = (GameObject)PrefabUtility.InstantiatePrefab(prefab, cell.transform);
             jellyObj.transform.localPosition = Vector3.zero;
 

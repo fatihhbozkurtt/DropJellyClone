@@ -87,8 +87,8 @@ namespace Controllers
             _jellyBlock.SetCell(emptyCell);
 
             transform.position = new Vector3(emptyCell.transform.position.x, _fixedY, _fixedZ);
-            transform.DOMoveZ(emptyCell.transform.position.z, 1f)
-                .SetEase(Ease.OutBounce)
+            transform.DOMoveZ(emptyCell.transform.position.z, .5f)
+                .SetEase(Ease.Linear)
                 .OnComplete(() =>
                 {
                     _jellyBlock.TriggerMatchChecking();

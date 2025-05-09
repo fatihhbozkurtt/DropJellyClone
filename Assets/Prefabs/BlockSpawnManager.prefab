@@ -47,10 +47,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   blockPrefabs:
   - {fileID: 3548658290518102575, guid: 07a938246f65dec4f83bc648be3695ef, type: 3}
-  - {fileID: 2356247700182657028, guid: c48dfc173a11ad040b54ad20a5be975e, type: 3}
-  - {fileID: 2356247700182657028, guid: b0100fd77dd32024da796fbcfe55f834, type: 3}
-  - {fileID: 2356247700182657028, guid: d4c8754141f49bc4f92a781aac12a731, type: 3}
+  - {fileID: 2356247700182657028, guid: 64149bbd306153a4d878ddbae776fbc9, type: 3}
   - {fileID: 2356247700182657028, guid: 94e7eb0f50c5b1f4c8fe50d1670ac05d, type: 3}
+  - {fileID: 2356247700182657028, guid: c48dfc173a11ad040b54ad20a5be975e, type: 3}
+  - {fileID: 2356247700182657028, guid: c12c879b6ba1e7d4b93c65e9eb922cef, type: 3}
+  - {fileID: 2356247700182657028, guid: 4aef331c5fd65594dbdc12190f7b24da, type: 3}
+  - {fileID: 2356247700182657028, guid: b0100fd77dd32024da796fbcfe55f834, type: 3}
+  - {fileID: 2356247700182657028, guid: a7f018ec3cea32946a28aaca6a611e9e, type: 3}
+  - {fileID: 2356247700182657028, guid: d4c8754141f49bc4f92a781aac12a731, type: 3}
   - {fileID: 2356247700182657028, guid: 6270822f0c6093544b652389e9c813d3, type: 3}
   spawnTransform: {fileID: 3069091169517303857}
 --- !u!1 &9201340428374772303

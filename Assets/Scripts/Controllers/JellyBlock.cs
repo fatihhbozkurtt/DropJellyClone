@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Data;
+using Data.Enums;
 using DG.Tweening;
 using EssentialManagers.Packages.GridManager.Scripts;
 using UnityEditor;
@@ -20,6 +21,12 @@ namespace Controllers
         [Header("Debug")] private GridManager _gridManager;
         [SerializeField] private List<InnerPiece> innerPieces;
 
+        private readonly Vector3
+            _innerPieceSpawnPos = new(0, 0.2f, 0); // designer tarafında son karar verilmiş hali olarak
+
+        // varsaydığım için hard-coded atama yaptım
+
+
         void Start()
         {
             if (parentCell != null)
@@ -29,7 +36,22 @@ namespace Controllers
             }
 
             _gridManager = GridManager.instance;
+        }
+
+        public void InitializeRuntime(List<ColorEnum> colorEnumPool)
+        {
             innerPieces = GetComponentsInChildren<InnerPiece>().ToList();
+            
+            if (colorEnumPool.Count != innerPieces.Count)
+            {
+                Debug.LogWarning("Incorrect number of InnerPieces or ColorEnumPool");
+                return;
+            }
+            
+            for (int i = 0; i < innerPieces.Count; i++)
+            {
+                innerPieces[i].InitializeRuntime(colorEnumPool[i]);
+            }
         }
 
         public void TriggerMatchChecking()
@@ -87,8 +109,8 @@ namespace Controllers
             {
                 // Editor'da prefab bağlantısını koruyarak instantiate
                 InnerPiece clone = (InnerPiece)PrefabUtility.InstantiatePrefab(innerPiecePrefab, transform);
-                clone.transform.localPosition = Vector3.zero;
-                clone.Initialize(pieceData);
+                clone.transform.localPosition = _innerPieceSpawnPos;
+                clone.InitializeEditor(pieceData);
 
                 // Undo kaydı ekle (geri alınabilirlik için)
                 Undo.RegisterCreatedObjectUndo(clone.gameObject, "Spawn InnerPiece");
@@ -96,6 +118,8 @@ namespace Controllers
 #else
     Debug.LogWarning("SetInnerPieces was called outside of editor, but uses editor-only methods.");
 #endif
+
+            innerPieces = GetComponentsInChildren<InnerPiece>().ToList();
         }
 
 
@@ -109,9 +133,11 @@ namespace Controllers
             return parentCell;
         }
 
-        public List<InnerPiece> GetInnerPieces()
+        public List<InnerPiece> GetInnerPieces(bool getFromHierarchy = false)
         {
-            return innerPieces;
+            return getFromHierarchy
+                ? GetComponentsInChildren<InnerPiece>().ToList()
+                : innerPieces;
         }
 
         #endregion
