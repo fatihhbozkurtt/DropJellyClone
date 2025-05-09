@@ -4,6 +4,7 @@ using Data;
 using Data.Enums;
 using DG.Tweening;
 using EssentialManagers.Packages.GridManager.Scripts;
+using Managers;
 using UnityEditor;
 using UnityEngine;
 
@@ -54,13 +55,18 @@ namespace Controllers
             }
         }
 
-        public void TriggerMatchChecking()
+        public void TriggerMatchChecking(out List<bool> matchOccuredList)
         {
+            matchOccuredList = new List<bool>();
+
             foreach (var piece in innerPieces)
             {
-                piece.CheckMatches();
+                piece.CheckMatches(out bool matchOccured);
+                matchOccuredList.Add(matchOccured);
             }
         }
+
+
 
         public void RemoveInnerPiece(InnerPiece innerPiece)
         {
@@ -91,7 +97,7 @@ namespace Controllers
             transform.DOMove(pos, 0.5f).OnComplete(() =>
             {
                 parentCell.SetOccupied(this);
-                TriggerMatchChecking(); // if move happens check again for matching
+                TriggerMatchChecking(out _); // if move happens check again for matching
             });
         }
 

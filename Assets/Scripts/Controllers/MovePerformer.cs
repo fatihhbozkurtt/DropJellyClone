@@ -81,7 +81,7 @@ namespace Controllers
             closestColumn.Clear();
 
             if (emptyCell == null) return;
-            
+
             GetComponent<MovePerformer>().enabled = false;
             emptyCell.SetOccupied(_jellyBlock);
             _jellyBlock.SetCell(emptyCell);
@@ -91,8 +91,18 @@ namespace Controllers
                 .SetEase(Ease.Linear)
                 .OnComplete(() =>
                 {
-                    _jellyBlock.TriggerMatchChecking();
-                    BlockSpawnManager.instance.SpawnJellyBlock();
+                    _jellyBlock.TriggerMatchChecking(out var matchOccuredList);
+
+                    // if no match for any piece trigger new jelly spawning
+                    bool anyMatch = matchOccuredList.Exists(match => match); // en az bir eşleşme varsa true döner
+
+                    if (!anyMatch)
+                    {
+                        // Eşleşme yok → yeni jelly spawnla
+                        BlockSpawnManager.instance
+                            .SpawnJellyBlock(); // Bu senin sisteminde varsa. Yoksa ilgili çağrıyı buraya yerleştir.
+                    }
+                    //  BlockSpawnManager.instance.SpawnJellyBlock();
                 });
         }
 

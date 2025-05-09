@@ -15,24 +15,24 @@ namespace Managers
 
         [SerializeField] private Transform spawnTransform;
 
-
-        private void Start()
-        {
-            // MatchCheckerManager.instance.AddAllMatchesCompletedListener(SpawnJellyBlock);
-        }
-
         protected override void Awake()
         {
             base.Awake();
-            
+
             SpawnJellyBlock();
         }
+
+        private void Start()
+        {
+            MatchCheckerManager.instance.AddAllMatchesCompletedListener(SpawnJellyBlock);
+        }
+
 
         public void SpawnJellyBlock()
         {
             JellyBlock randomJellyBlock = blockPrefabs[Random.Range(0, blockPrefabs.Count)];
             JellyBlock clone = Instantiate(randomJellyBlock, spawnTransform.position, Quaternion.identity);
-            
+
             int pieceCount = clone.GetInnerPieces(true).Count;
             List<ColorEnum> colorPool = DataExtensions.GetUniqueRandomColors(pieceCount);
 

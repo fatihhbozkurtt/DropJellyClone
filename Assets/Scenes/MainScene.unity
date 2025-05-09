@@ -195,7 +195,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1504229972303502200, guid: 3ed0971d5888c614fbae05154be0586c, type: 3}
       propertyPath: orthographic size
-      value: 8
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 3934330142165637476, guid: 3ed0971d5888c614fbae05154be0586c, type: 3}
       propertyPath: m_Name
@@ -211,15 +211,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4875300527698177765, guid: 3ed0971d5888c614fbae05154be0586c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2.5
+      value: -0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4875300527698177765, guid: 3ed0971d5888c614fbae05154be0586c, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7071068
+      value: 0.8433915
       objectReference: {fileID: 0}
     - target: {fileID: 4875300527698177765, guid: 3ed0971d5888c614fbae05154be0586c, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.7071068
+      value: 0.53729963
       objectReference: {fileID: 0}
     - target: {fileID: 4875300527698177765, guid: 3ed0971d5888c614fbae05154be0586c, type: 3}
       propertyPath: m_LocalRotation.y

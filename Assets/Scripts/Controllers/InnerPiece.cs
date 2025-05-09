@@ -19,7 +19,7 @@ namespace Controllers
         [Header("Debug")] [SerializeField] JellyBlock parentJellyBlock;
         public bool IsMatched { get; private set; } 
 
-        private void Awake()
+        private void Start()
         {
             parentJellyBlock = transform.parent.GetComponent<JellyBlock>();
             parentJellyBlock.PieceRemovedEvent += OnPieceRemoved;
@@ -134,10 +134,10 @@ namespace Controllers
             Sequence sequence = DOTween.Sequence();
             sequence.Join(meshRenderer.transform.DOScale(scaleData.Scale, 0.25f));
             sequence.Join(meshRenderer.transform.DOLocalMove(scaleData.Pos, 0.25f));
-            sequence.OnComplete(() => parentJellyBlock.TriggerMatchChecking());
+            sequence.OnComplete(() => parentJellyBlock.TriggerMatchChecking(out _));
         }
 
-        public void CheckMatches()
+        public void CheckMatches(out bool matchOccured)
         {
             List<JellyBlock> neighborJellyBlocks = new List<JellyBlock>();
             CellController parentCell = parentJellyBlock.GetCell();
@@ -170,21 +170,25 @@ namespace Controllers
             #region Check For Color Matches
 
             bool isMatched = false;
+            matchOccured = false;
             foreach (var piece in facedPieces)
             {
                 if (piece.GetInnerPieceData().ColorEnum != innerPieceData.ColorEnum) continue;
 
                 piece.OnMatchOccuredDestroySelf();
                 isMatched = true;
+                matchOccured = true;
             }
 
             if (isMatched)
             {
-                MatchCheckerManager.instance.RegisterMatchCheck();
+                MatchCheckerManager.instance.RegisterMatchCheck(this);
                 OnMatchOccuredDestroySelf(true);
             }
+            
 
             #endregion
+
         }
 
         private void OnMatchOccuredDestroySelf(bool unregister = false)
@@ -194,7 +198,7 @@ namespace Controllers
             {
                 parentJellyBlock.PieceRemovedEvent -= OnPieceRemoved;
                 parentJellyBlock.RemoveInnerPiece(this);
-                if (unregister) MatchCheckerManager.instance.UnregisterMatchCheck();
+                if (unregister) MatchCheckerManager.instance.UnregisterMatchCheck(this);
                 Destroy(gameObject);
             });
         }

@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using Controllers;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Managers
 {
     public class MatchCheckerManager : MonoSingleton<MatchCheckerManager>
     {
         [SerializeField] private int activeMatchChecks;
-        [SerializeField] private List<MatchData> matchDataList = new List<MatchData>();
+  [SerializeField] private List<InnerPiece> registeredPieces = new List<InnerPiece>();
         private Coroutine completionCheckCoroutine;
         private float completionDelay = 0.5f;
 
@@ -17,20 +18,28 @@ namespace Managers
 
         #region Public API
 
-        public void RegisterMatchCheck()
+        public void RegisterMatchCheck(InnerPiece piece)
         {
-            activeMatchChecks++;
+            if (registeredPieces.Contains(piece)) return;
+
+            registeredPieces.Add(piece);
+
+            if (completionCheckCoroutine != null)
+                StopCoroutine(completionCheckCoroutine);
         }
 
-        public void UnregisterMatchCheck()
+        public void UnregisterMatchCheck(InnerPiece p)
         {
-            activeMatchChecks = Mathf.Max(0, activeMatchChecks - 1);
+            if (!registeredPieces.Contains(p)) return;
+
+            registeredPieces.Remove(p);
 
             if (completionCheckCoroutine != null)
                 StopCoroutine(completionCheckCoroutine);
 
             completionCheckCoroutine = StartCoroutine(CheckForCompletionAfterDelay());
         }
+
 
         // public void RegisterMatchCheck(MatchData matchData)
         // {
@@ -72,11 +81,12 @@ namespace Managers
 
         #region Private
 
+        // ReSharper disable Unity.PerformanceAnalysis
         private IEnumerator CheckForCompletionAfterDelay()
         {
             yield return new WaitForSeconds(completionDelay);
 
-            if (matchDataList.Count == 0)
+            if (registeredPieces.Count == 0)
                 AllMatchesCompletedEvent?.Invoke();
         }
 
@@ -87,6 +97,5 @@ namespace Managers
 [Serializable]
 public class MatchData
 {
-    public InnerPiece activePiece;
-    public InnerPiece passivePiece;
+    public InnerPiece RegisteredPiece;
 }
