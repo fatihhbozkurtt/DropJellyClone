@@ -82,7 +82,7 @@ namespace Controllers
 
             if (emptyCell == null) return;
 
-            GetComponent<MovePerformer>().enabled = false;
+            enabled = false;
             emptyCell.SetOccupied(_jellyBlock);
             _jellyBlock.SetCell(emptyCell);
 

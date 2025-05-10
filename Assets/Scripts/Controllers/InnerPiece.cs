@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Data;
 using Data.Enums;
 using DG.Tweening;
@@ -169,36 +170,54 @@ namespace Controllers
 
             #region Check For Color Matches
 
-            bool isMatched = false;
+            List<InnerPiece> matchedPieces = new List<InnerPiece>();
             matchOccured = false;
             foreach (var piece in facedPieces)
             {
                 if (piece.GetInnerPieceData().ColorEnum != innerPieceData.ColorEnum) continue;
 
-                piece.OnMatchOccuredDestroySelf();
-                isMatched = true;
+                matchedPieces.Add(piece);
                 matchOccured = true;
             }
 
-            if (isMatched)
+            if (matchOccured)
             {
+                matchedPieces.Add(this);
+
+                var averageMatchPos = DataExtensions.GetAveragePosition(
+                    matchedPieces
+                        .Select(t => t.GetMeshPos(worldPos: true))
+                        .ToList()
+                );
+
+                foreach (var piece in matchedPieces)
+                {
+                    if (piece == this) continue;
+                    piece.OnMatchOccuredDestroySelf(averageMatchPos);
+                }
+
                 MatchCheckerManager.instance.RegisterMatchCheck(this);
-                OnMatchOccuredDestroySelf(true);
+                OnMatchOccuredDestroySelf(averageMatchPos, true);
             }
 
             #endregion
         }
 
-        private void OnMatchOccuredDestroySelf(bool unregister = false)
+        private void OnMatchOccuredDestroySelf(Vector3 averagePos, bool unregister = false)
         {
             IsMatched = true;
-            transform.DOScale(Vector3.zero, .5f).OnComplete(() =>
+            Sequence sq = DOTween.Sequence();
+
+          //  sq.Append(transform.DOMove(averagePos, 0.5f).SetEase(Ease.InBack));
+            sq.Join(transform.DOScale(Vector3.zero, .5f).OnComplete(() =>
             {
                 parentJellyBlock.PieceRemovedEvent -= OnPieceRemoved;
                 parentJellyBlock.RemoveInnerPiece(this);
                 if (unregister) MatchCheckerManager.instance.UnregisterMatchCheck(this);
                 Destroy(gameObject);
-            });
+            }));
+
+            sq.Play();
         }
 
         #region Getters/Setter
@@ -208,9 +227,9 @@ namespace Controllers
             return innerPieceData;
         }
 
-        public Vector3 GetMeshPos()
+        public Vector3 GetMeshPos(bool worldPos = false)
         {
-            return meshRenderer.transform.localPosition;
+            return worldPos ? meshRenderer.transform.position : meshRenderer.transform.localPosition;
         }
 
         private void SetMaterialColor()

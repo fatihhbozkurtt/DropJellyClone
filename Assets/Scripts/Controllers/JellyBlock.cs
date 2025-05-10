@@ -21,6 +21,7 @@ namespace Controllers
 
         [Header("Debug")] private GridManager _gridManager;
         [SerializeField] private List<InnerPiece> innerPieces;
+        MovePerformer _movePerformer;
 
         public readonly Vector3
             JellySpawnPos = new(0, 0.25f, 0); // değişmeyecek değer varsaydığım için hard-coded atama yaptım
@@ -28,17 +29,19 @@ namespace Controllers
 
         private void Start()
         {
+            _movePerformer = GetComponent<MovePerformer>();
             LevelLoadManager.instance.NewLevelLoadedEvent += DestroySelf;
 
             transform.parent = null;
-            if (parentCell != null)
+            if (parentCell != null) // intantiated on a cell by editor
             {
-                GetComponent<MovePerformer>().enabled = false;
+                _movePerformer.enabled = false;
                 parentCell.SetOccupied(this);
             }
 
             _gridManager = GridManager.instance;
-            transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBounce).From(Vector3.zero);
+            transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBounce).From(Vector3.zero)
+                .OnComplete(() => _movePerformer.enabled = !parentCell);
         }
 
         public void InitializeRuntime(List<ColorEnum> colorEnumPool)

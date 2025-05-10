@@ -1,5 +1,9 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 namespace EssentialManagers.Scripts
 {
@@ -27,7 +31,12 @@ namespace EssentialManagers.Scripts
             Application.targetFrameRate = 999;
             QualitySettings.vSyncCount = 0;
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
+        }
 
+        private IEnumerator Start()
+        {
+            yield return new WaitForSeconds(0.5f);
+            StartGame();
         }
 
         public void StartGame()
@@ -49,7 +58,6 @@ namespace EssentialManagers.Scripts
             else
             {
                 LevelFailedEvent?.Invoke();
-
             }
         }
 
