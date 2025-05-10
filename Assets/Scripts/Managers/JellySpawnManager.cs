@@ -7,11 +7,10 @@ using Random = UnityEngine.Random;
 
 namespace Managers
 {
-    public class BlockSpawnManager : MonoSingleton<BlockSpawnManager>
+    public class JellySpawnManager : MonoSingleton<JellySpawnManager>
     {
         [Header("References")] [SerializeField]
         private List<JellyBlock> blockPrefabs;
-
 
         [SerializeField] private Transform spawnTransform;
 
@@ -25,6 +24,7 @@ namespace Managers
         private void Start()
         {
             MatchCheckerManager.instance.AddAllMatchesCompletedListener(SpawnJellyBlock);
+            LevelLoadManager.instance.NewLevelLoadedEvent += SpawnJellyBlock;
         }
 
 

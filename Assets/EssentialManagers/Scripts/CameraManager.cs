@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using EssentialManagers.Scripts;
 
 public class CameraManager : MonoSingleton<CameraManager>
 {

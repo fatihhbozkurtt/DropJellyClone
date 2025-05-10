@@ -99,7 +99,7 @@ namespace Controllers
                     if (!anyMatch)
                     {
                         // Eşleşme yok → yeni jelly spawnla
-                        BlockSpawnManager.instance
+                        JellySpawnManager.instance
                             .SpawnJellyBlock(); // Bu senin sisteminde varsa. Yoksa ilgili çağrıyı buraya yerleştir.
                     }
                     //  BlockSpawnManager.instance.SpawnJellyBlock();

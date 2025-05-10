@@ -22,14 +22,15 @@ namespace Controllers
         [Header("Debug")] private GridManager _gridManager;
         [SerializeField] private List<InnerPiece> innerPieces;
 
-        private readonly Vector3
-            _innerPieceSpawnPos = new(0, 0.2f, 0); // designer tarafında son karar verilmiş hali olarak
-
-        // varsaydığım için hard-coded atama yaptım
+        public readonly Vector3
+            JellySpawnPos = new(0, 0.25f, 0); // değişmeyecek değer varsaydığım için hard-coded atama yaptım
 
 
-        void Start()
+        private void Start()
         {
+            LevelLoadManager.instance.NewLevelLoadedEvent += DestroySelf;
+
+            transform.parent = null;
             if (parentCell != null)
             {
                 GetComponent<MovePerformer>().enabled = false;
@@ -37,18 +38,19 @@ namespace Controllers
             }
 
             _gridManager = GridManager.instance;
+            transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBounce).From(Vector3.zero);
         }
 
         public void InitializeRuntime(List<ColorEnum> colorEnumPool)
         {
             innerPieces = GetComponentsInChildren<InnerPiece>().ToList();
-            
+
             if (colorEnumPool.Count != innerPieces.Count)
             {
                 Debug.LogWarning("Incorrect number of InnerPieces or ColorEnumPool");
                 return;
             }
-            
+
             for (int i = 0; i < innerPieces.Count; i++)
             {
                 innerPieces[i].InitializeRuntime(colorEnumPool[i]);
@@ -65,8 +67,6 @@ namespace Controllers
                 matchOccuredList.Add(matchOccured);
             }
         }
-
-
 
         public void RemoveInnerPiece(InnerPiece innerPiece)
         {
@@ -103,6 +103,7 @@ namespace Controllers
 
         private void DestroySelf()
         {
+            LevelLoadManager.instance.NewLevelLoadedEvent -= DestroySelf;
             transform.DOScale(Vector3.zero, 0.2f).OnComplete(() => Destroy(gameObject, 0.2f));
         }
 
@@ -115,7 +116,7 @@ namespace Controllers
             {
                 // Editor'da prefab bağlantısını koruyarak instantiate
                 InnerPiece clone = (InnerPiece)PrefabUtility.InstantiatePrefab(innerPiecePrefab, transform);
-                clone.transform.localPosition = _innerPieceSpawnPos;
+                clone.transform.localPosition = Vector3.zero;
                 clone.InitializeEditor(pieceData);
 
                 // Undo kaydı ekle (geri alınabilirlik için)

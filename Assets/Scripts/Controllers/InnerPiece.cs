@@ -17,7 +17,7 @@ namespace Controllers
         MeshRenderer meshRenderer;
 
         [Header("Debug")] [SerializeField] JellyBlock parentJellyBlock;
-        public bool IsMatched { get; private set; } 
+        public bool IsMatched { get; private set; }
 
         private void Start()
         {
@@ -56,7 +56,7 @@ namespace Controllers
             Vector3 scale = meshRenderer.transform.localScale;
             Vector3 posOffset = Vector3.zero;
             float generalOffset = ScaleModifier.GeneralPosOffset();
-            
+
             // ASSIGN SCALE AND POSITION    
             if (innerPieceData.ScaleType == ScaleType.OneByOne)
             {
@@ -110,7 +110,7 @@ namespace Controllers
             {
                 scale = ScaleModifier.GetFullScale();
             }
- 
+
             meshRenderer.transform.localScale = scale;
             meshRenderer.transform.localPosition += posOffset;
             SetMaterialColor();
@@ -185,10 +185,8 @@ namespace Controllers
                 MatchCheckerManager.instance.RegisterMatchCheck(this);
                 OnMatchOccuredDestroySelf(true);
             }
-            
 
             #endregion
-
         }
 
         private void OnMatchOccuredDestroySelf(bool unregister = false)
@@ -214,11 +212,12 @@ namespace Controllers
         {
             return meshRenderer.transform.localPosition;
         }
+
         private void SetMaterialColor()
         {
             meshRenderer.material = DataExtensions.GetMaterialByColorEnum(innerPieceData.ColorEnum).Material;
         }
+
         #endregion
-        
     }
 }

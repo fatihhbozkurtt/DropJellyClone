@@ -54,6 +54,7 @@ namespace Editor
             serializedObject.ApplyModifiedProperties();
         }
 
+        // ReSharper disable Unity.PerformanceAnalysis
         private void SpawnJellyAtCell(CellController cell)
         {
             if (cell == null || cell.GetOccupantJB() != null) return;
@@ -68,9 +69,9 @@ namespace Editor
             if (spawnablePieceDataListProp.arraySize == 0) return;
 
             GameObject jellyObj = (GameObject)PrefabUtility.InstantiatePrefab(prefab, cell.transform);
-            jellyObj.transform.localPosition = Vector3.zero;
-
             JellyBlock jellyBlock = jellyObj.GetComponent<JellyBlock>();
+
+            jellyObj.transform.localPosition = jellyBlock.JellySpawnPos;
             if (jellyBlock != null)
             {
                 jellyBlock.SetCell(cell); // Hücre bağlantısını yap

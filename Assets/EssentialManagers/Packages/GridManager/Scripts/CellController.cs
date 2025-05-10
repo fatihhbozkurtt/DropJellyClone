@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Controllers;
 using Data;
+using DG.Tweening;
 using UnityEngine;
 
 namespace EssentialManagers.Packages.GridManager.Scripts
@@ -23,15 +24,10 @@ namespace EssentialManagers.Packages.GridManager.Scripts
 
         private void Start()
         {
+            transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBounce).From(Vector3.zero);
             name = coordinates.ToString();
 
             neighbours = GetNeighbors();
-
-            // if (spawnablePieceDataList.Count != 0)
-            // {
-            //     // Instantiate jelly block
-            //     
-            // }
         }
 
         public void Initialize(Vector2Int initCoords)

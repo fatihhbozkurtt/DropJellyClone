@@ -232,7 +232,7 @@ namespace Data
             return new Vector3(0.9f, .1f, 0.9f);
         }
 
-        public static Vector3 GetFullPos()
+        private static Vector3 GetFullPos()
         {
             return new Vector3(0, 0.2f, 0);
         }
