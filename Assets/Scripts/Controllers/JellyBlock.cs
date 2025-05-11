@@ -22,6 +22,7 @@ namespace Controllers
         [Header("Debug")] private GridManager _gridManager;
         [SerializeField] private List<InnerPiece> innerPieces;
         MovePerformer _movePerformer;
+        bool _isDestroyed;
 
         public readonly Vector3
             JellySpawnPos = new(0, 0.25f, 0); // değişmeyecek değer varsaydığım için hard-coded atama yaptım
@@ -66,6 +67,7 @@ namespace Controllers
 
             foreach (var piece in innerPieces)
             {
+                if (piece == null) continue;
                 piece.CheckMatches(out bool matchOccured);
                 matchOccuredList.Add(matchOccured);
             }
@@ -88,6 +90,8 @@ namespace Controllers
             }
         }
 
+        private Tween _moveColumnTween;
+
         public void MoveDownOnColumn()
         {
             Vector2Int targetCoordinates = parentCell.GetCoordinates() + new Vector2Int(0, -1);
@@ -95,8 +99,8 @@ namespace Controllers
             parentCell.SetFree();
             parentCell = _gridManager.GetGridCellByCoordinates(targetCoordinates);
 
-
             Vector3 pos = new Vector3(transform.position.x, transform.position.y, parentCell.transform.position.z);
+
             transform.DOMove(pos, 0.5f).OnComplete(() =>
             {
                 parentCell.SetOccupied(this);
@@ -104,10 +108,17 @@ namespace Controllers
             });
         }
 
+
         private void DestroySelf()
         {
+            _isDestroyed = true;
             LevelLoadManager.instance.NewLevelLoadedEvent -= DestroySelf;
-            transform.DOScale(Vector3.zero, 0.2f).OnComplete(() => Destroy(gameObject, 0.2f));
+            transform.DOScale(Vector3.zero, 0.2f).OnComplete(() =>
+            {
+                transform.DOKill();
+                parentCell?.SetFree();
+                Destroy(gameObject);
+            });
         }
 
         #region Getters/Setters

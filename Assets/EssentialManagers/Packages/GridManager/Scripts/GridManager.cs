@@ -161,7 +161,7 @@ namespace EssentialManagers.Packages.GridManager.Scripts
             }
         }
 
-        public void OnAJellyBlockDestroyed(Vector2Int coordinates, JellyBlock destroyedBlocked)
+        public void OnAJellyBlockDestroyed(Vector2Int coordinates, JellyBlock destroyedJb)
         {
             int column = coordinates.x;
             int row = coordinates.y;
@@ -172,14 +172,16 @@ namespace EssentialManagers.Packages.GridManager.Scripts
                 if (cell.GetCoordinates().x != column) continue;
                 if (cell.GetCoordinates().y < row) continue;
                 if (!cell.isOccupied) continue;
-                if (cell.GetOccupantJB() == destroyedBlocked) continue;
+                if (cell.GetOccupantJB() == destroyedJb) continue;
+                if (cell.GetOccupantJB() == null) continue;
 
                 moveableBlocks.Add(cell.GetOccupantJB());
             }
 
             foreach (var jb in moveableBlocks)
             {
-                Debug.Log("Move mate: " + jb);
+                if (jb == null) continue;
+                Debug.Log("Move down on the column: " + jb);
                 jb.MoveDownOnColumn();
             }
         }

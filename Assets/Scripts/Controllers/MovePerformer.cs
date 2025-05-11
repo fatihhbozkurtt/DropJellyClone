@@ -4,6 +4,7 @@ using DG.Tweening;
 using EssentialManagers.Packages.GridManager.Scripts;
 using Managers;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Controllers
 {
@@ -35,6 +36,11 @@ namespace Controllers
         {
             if (Input.GetMouseButton(0))
             {
+                if (EventSystem.current.IsPointerOverGameObject())
+                {
+                    // UI'ye tıklanmış, sahneye input gönderme
+                    return;
+                }
                 HandleMouseDrag();
             }
             else if (Input.GetMouseButtonUp(0))
@@ -87,23 +93,24 @@ namespace Controllers
             _jellyBlock.SetCell(emptyCell);
 
             transform.position = new Vector3(emptyCell.transform.position.x, _fixedY, _fixedZ);
-            transform.DOMoveZ(emptyCell.transform.position.z, .5f)
-                .SetEase(Ease.Linear)
+            float distance = Mathf.Abs(transform.position.z - emptyCell.transform.position.z);
+            float durationPerUnit = 0.1f;
+            float duration = distance * durationPerUnit;
+
+            transform.DOMoveZ(emptyCell.transform.position.z, duration)
+                .SetEase(Ease.InCirc)
                 .OnComplete(() =>
                 {
                     _jellyBlock.TriggerMatchChecking(out var matchOccuredList);
 
-                    // if no match for any piece trigger new jelly spawning
-                    bool anyMatch = matchOccuredList.Exists(match => match); // en az bir eşleşme varsa true döner
+                    bool anyMatch = matchOccuredList.Exists(match => match);
 
                     if (!anyMatch)
                     {
-                        // Eşleşme yok → yeni jelly spawnla
-                        JellySpawnManager.instance
-                            .SpawnJellyBlock(); // Bu senin sisteminde varsa. Yoksa ilgili çağrıyı buraya yerleştir.
+                        JellySpawnManager.instance.SpawnJellyBlock();
                     }
-                    //  BlockSpawnManager.instance.SpawnJellyBlock();
                 });
+
         }
 
         #endregion
