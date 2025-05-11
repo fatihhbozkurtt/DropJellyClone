@@ -6,19 +6,19 @@ This project is a Unity-powered hobby clone created for educational and portfoli
 
 ---
 
-##🎯 Project Goals
+## 🎯 Project Goals
 
 - Recreate the core mechanics of games like Drop Jelly
 - Improve Unity skills by handling multiple inner objects within a parent block
 - Develop a clean and scalable input system with touch and swipe support
 - Practice animation using DOTween for responsive and juicy movement
-- Build a foundation for potential content expansion (e.g. levels, effects)
+- Build a foundation for potential content expansion (e.g., levels, effects)
 
 ---
 
-##🎮 Gameplay Overview
-- Each JellyBlock contains 1–4 InnerPieces, each with its own color.
-- Players must drop these blocks into grid slots so that matching colors align.
+## 🎮 Gameplay Overview
+- Each JellyBlock contains 1–4 InnerPieces, each with its color.
+- Players must drop these blocks into grid slots to align matching colors.
 - When enough same-colored pieces are connected, they merge or disappear.
 - Plan drops to prevent grid overflow and optimize for chain reactions.
   
@@ -34,7 +34,7 @@ This project is a Unity-powered hobby clone created for educational and portfoli
   
 ---
 
-##🧠 System Design
+## 🧠 System Design
 - InnerPiece & JellyBlock Architecture:
 Each JellyBlock acts as a parent, holding multiple InnerPieces. InnerPieces are responsible for color and merging logic, while the JellyBlock handles movement and animation.
 
@@ -49,13 +49,13 @@ All drops, merges, and clears use DOTween animations.
 
 ---
 
-##📈 Level Progression (Manual)
+## 📈 Level Progression (Manual)
 - While an automated target system and level-based difficulty scaling are not yet included, players can switch between scenes manually using the Next and Prev buttons.
 - This provides a basic way to test level designs across different setups.
 
 ---
 
-##🎨 Technologies Used
+## 🎨 Technologies Used
 - Unity (C#)
 - DOTween – for movement and UI animations
 - ScriptableObject – for organizing block and level data
@@ -64,10 +64,10 @@ All drops, merges, and clears use DOTween animations.
 
 ---
 
-##📌 Notes
+## 📌 Notes
 - This project is a non-commercial clone created purely for learning and showcasing development skills.
 - All code, systems, and mechanics are implemented from scratch.
-- The game was inspired by modern mobile puzzle games but includes original architecture and gameplay logic.
+- Modern mobile puzzle games inspired the game, but include original architecture and gameplay logic.
 
 ---
 
