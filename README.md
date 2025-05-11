@@ -64,6 +64,13 @@ All drops, merges, and clears use DOTween animations.
 
 ---
 
+## 📹 Level Design Guideline
+
+You can view the level design reference video here:  
+🔗 [Level Design Guideline](https://drive.google.com/file/d/18VWSKsQg8yq34CXp8dMddH5991RGfLZe/view?usp=sharing)
+
+---
+
 ## 📌 Notes
 - This project is a non-commercial clone created purely for learning and showcasing development skills.
 - All code, systems, and mechanics are implemented from scratch.
